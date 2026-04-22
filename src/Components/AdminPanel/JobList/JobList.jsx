@@ -48,18 +48,22 @@ const JobList = () => {
   return (
     <div className="job-list">
       <div className="job-list-header">
-        <div>
-          <h1>Job List</h1>
-          <p>Manage all posted job positions</p>
+        <div className="header-info">
+          <h2>Job List</h2>
+          <p>You have {jobs.length} active positions</p>
         </div>
-        <div className="job-count">
-          <span>{jobs.length} {jobs.length === 1 ? 'Job' : 'Jobs'}</span>
-        </div>
+        <button className="refresh-btn" onClick={loadJobs}>
+          Refresh List
+        </button>
       </div>
 
       <div className="department-filter">
         {departments.map(dept => (
-          <button key={dept} className={`filter-btn ${selectedDepartment === dept ? 'active' : ''}`} onClick={() => setSelectedDepartment(dept)}>
+          <button 
+            key={dept} 
+            className={`filter-btn ${selectedDepartment === dept ? 'active' : ''}`} 
+            onClick={() => setSelectedDepartment(dept)}
+          >
             {dept}
           </button>
         ))}
@@ -68,30 +72,36 @@ const JobList = () => {
       {loading ? (
         <div className="loading-state"><p>Loading jobs...</p></div>
       ) : filteredJobs.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon"><FontAwesomeIcon icon={faClipboardList} size="2x" /></div>
+        <div className="no-jobs">
           <h3>No jobs found</h3>
-          <p>{selectedDepartment === 'All' ? 'Get started by posting your first job!' : `No jobs found in ${selectedDepartment} department.`}</p>
+          <p>{selectedDepartment === 'All' ? 'Start by posting your first job.' : `No jobs currently in ${selectedDepartment}.`}</p>
         </div>
       ) : (
-        <div className="jobs-grid">
+        <div className="jobs-container">
           {filteredJobs.map(job => (
-            <div key={job._id} className="job-card">
-              <div className="job-card-header">
+            <div key={job._id} className="job-item">
+              <div className="job-info">
+                <h3>{job.title}</h3>
                 <div className="job-meta">
-                  <span className="department-tag">{job.department}</span>
-                  <span className="type-tag">{job.type}</span>
+                  <div className="meta-tag">
+                    <FontAwesomeIcon icon={faMapMarkerAlt} /> {job.location}
+                  </div>
+                  <div className="meta-tag">
+                    <FontAwesomeIcon icon={faClock} /> {job.experience}
+                  </div>
+                  <div className="meta-tag">
+                    <FontAwesomeIcon icon={faClipboardList} /> {job.department}
+                  </div>
                 </div>
-                <button className="delete-btn" onClick={() => handleDelete(job._id)} title="Delete job"><FontAwesomeIcon icon={faCircleMinus} color="#ffffff"/></button>
               </div>
-              <h3>{job.title}</h3>
-              <div className="job-details">
-               <div className="detail"><FontAwesomeIcon className="icon" icon={faMapMarkerAlt} /> {job.location}</div>
-                <div className="detail"><FontAwesomeIcon className="icon" icon={faClock} /> {job.experience}</div>
-              </div>
-              <p className="job-description">{job.description}</p>
-              <div className="job-footer">
-                <span className="job-date">Posted: {new Date(job.createdAt).toLocaleDateString()}</span>
+              <div className="job-actions">
+                <button 
+                  className="delete-btn" 
+                  onClick={() => handleDelete(job._id)}
+                  title="Remove Job"
+                >
+                  <FontAwesomeIcon icon={faTrash} /> Delete
+                </button>
               </div>
             </div>
           ))}

@@ -88,16 +88,16 @@ const CareerPositions = () => {
                     <span>{position.location}</span>
                   </div>
                   <div className="detail">
-                    <span className="icon">⏱️</span>
+                    <span className="icon">💼</span>
                     <span>{position.experience}</span>
                   </div>
                 </div>
                 <p className="position-description">{position.description}</p>
                 <button
-                  className="apply-btn"
-                  onClick={() => navigate("/apply", { state: { job: position } })}
+                  className="view-details-btn"
+                  onClick={() => navigate(`/job/${position._id}`, { state: { job: position } })}
                 >
-                  Apply Now →
+                  View Details
                 </button>
               </div>
             ))}

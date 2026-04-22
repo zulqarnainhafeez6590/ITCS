@@ -5,6 +5,7 @@ import PostJob from './PostJob/PostJob';
 import JobList from './JobList/JobList';
 import BlogApproval from './BlogApproval/BlogApproval';
 import AdminBlogDetail from './BlogApproval/AdminBlogDetail';
+import PostBlog from './PostBlog/PostBlog';
 import './AdminPanel.scss';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,7 +14,8 @@ import {
   faList, 
   faBlog, 
   faArrowRightFromBracket, 
-  faUsers 
+  faUsers,
+  faPenToSquare
 } from '@fortawesome/free-solid-svg-icons';
 
 const AdminPanel = () => {
@@ -110,11 +112,18 @@ const AdminPanel = () => {
 
           <button
             className={`nav-item ${activeTab === 'blog-approval' ? 'active' : ''}`}
-            utilisée
             onClick={() => setActiveTab('blog-approval')}
           >
             <span className="nav-icon"><FontAwesomeIcon icon={faBlog} /></span>
             <span className="nav-text">Blog Approval</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'create-blog' ? 'active' : ''}`}
+            onClick={() => setActiveTab('create-blog')}
+          >
+            <span className="nav-icon"><FontAwesomeIcon icon={faPenToSquare} /></span>
+            <span className="nav-text">Create Blog</span>
           </button>
 
           <button
@@ -138,6 +147,7 @@ const AdminPanel = () => {
         {activeTab === 'post-job' && <PostJob />}
         {activeTab === 'job-list' && <JobList />}
         {activeTab === 'blog-approval' && <BlogApproval />}
+        {activeTab === 'create-blog' && <PostBlog />}
         
         {activeTab === 'add-admin' && (
           <div className="add-admin-form">

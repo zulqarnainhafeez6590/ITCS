@@ -7,44 +7,44 @@ import { faMoneyBillWave, faHospital, faUmbrellaBeach, faRocket, faLaptopCode, f
 const CareerBenefits = () => {
   const benefits = [
     {
-      icon: faMoneyBillWave,
-      title: "Competitive Salary",
-      description: "Industry-leading compensation packages with performance bonuses and annual reviews."
+      icon: faHospital,
+      title: "Health Insurance & OPD",
+      description: "Comprehensive coverage for yourself and your family, including OPD benefits."
     },
     {
-      icon: faHospital,
-      title: "Health & Wellness",
-      description: "Comprehensive health insurance, mental health support, and fitness programs."
+      icon: faMoneyBillWave,
+      title: "Provident Fund",
+      description: "Secure your future with our provident fund scheme with no employee deductions."
     },
     {
       icon: faUmbrellaBeach,
-      title: "Flexible Time Off",
-      description: "Generous vacation policy, sick leave, and paid holidays for work-life balance."
+      title: "Annual Paid Leaves",
+      description: "Generous allocation of annual and sick leaves for your well-being."
     },
     {
       icon: faRocket,
-      title: "Career Growth",
-      description: "Professional development opportunities, training programs, and clear career paths."
-    },
-    {
-      icon: faLaptopCode,
-      title: "Remote Work",
-      description: "Hybrid work model with modern equipment and home office setup allowance."
+      title: "Compensation Plans",
+      description: "Competitive salary structures and attractive compensation packages."
     },
     {
       icon: faGraduationCap,
-      title: "Learning Budget",
-      description: "Annual budget for courses, conferences, certifications, and skill development."
+      title: "Paid Certifications",
+      description: "Get reimbursed for professional certifications and skill training."
     },
     {
       icon: faUsers,
-      title: "Team Events",
-      description: "Regular team building activities, company retreats, and social gatherings."
+      title: "Quarterly Meetups",
+      description: "Engaging team meetups and social activities to build strong bonds."
     },
     {
       icon: faPizzaSlice,
-      title: "Perks & More",
-      description: "Free meals, snacks, game rooms, and a vibrant office environment."
+      title: "Stars of the Month",
+      description: "Regular recognition and rewards for our outstanding performers."
+    },
+    {
+      icon: faMoneyBillWave,
+      title: "Referral Bonuses",
+      description: "Earn rewards for bringing great talent into the ITCS family."
     }
   ];
 

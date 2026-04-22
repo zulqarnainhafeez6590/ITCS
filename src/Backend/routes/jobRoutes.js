@@ -1,6 +1,7 @@
 import express from 'express'
 import nodemailer from 'nodemailer'
 import multer from 'multer'
+import Application from '../models/application.js'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -55,9 +56,28 @@ router.post('/apply', upload.single('resume'), async (req, res) => {
       return res.status(400).json({ message: 'Resume (PDF) is required.' })
     }
 
+    // 1. Save to Database (ITCS > itcs-db)
+    const newApplication = new Application({
+      fullName,
+      email,
+      phone,
+      preferredLocation,
+      jobTitle,
+      jobDepartment,
+      jobLocation,
+      experience,
+      linkedin,
+      coverLetter,
+      resumeFileName: req.file.originalname,
+    })
+
+    await newApplication.save()
+    console.log(`Application from ${fullName} saved to itcs-db collection.`)
+
+    // 2. Send Email Notification
     const mailOptions = {
       from: `"Careers Portal" <${process.env.EMAIL_USER}>`,
-      to: 'abubakarr1011@gmail.com',
+      to: process.env.EMAIL_USER, // Send to the admin email
       subject: `New Application: ${jobTitle} - ${fullName}`,
       html: `
         <!DOCTYPE html>

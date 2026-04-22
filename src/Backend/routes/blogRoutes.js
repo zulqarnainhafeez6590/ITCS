@@ -17,8 +17,15 @@ router.get("/statuses", async (req, res) => {
 // Update status, author, or custom date
 router.patch("/:devId/status", async (req, res) => {
   try {
-    const devIdNum = Number(req.params.devId);
+    const devIdStr = req.params.devId;
+    const devIdNum = parseInt(devIdStr, 10);
+    console.log("Received request to update devId:", devIdStr, "parsed:", devIdNum, "body:", req.body);
+    
     const { status, customAuthor, customDate } = req.body;
+
+    if (!devIdNum || isNaN(devIdNum)) {
+      return res.status(400).json({ error: "Invalid devId" });
+    }
 
     const updateFields = {};
     if (status !== undefined) {
@@ -34,20 +41,27 @@ router.patch("/:devId/status", async (req, res) => {
       return res.status(400).json({ error: "No valid fields to update" });
     }
 
-    const updated = await BlogStatus.findOneAndUpdate(
-      { devId: devIdNum },
-      { $set: updateFields },
-      { upsert: true, new: true }
-    );
-
-    if (!updated) {
-      return res.status(404).json({ error: "devId not found" });
+    // First try to find existing record
+    let updated = await BlogStatus.findOne({ devId: devIdNum });
+    
+    if (updated) {
+      // Update existing record
+      Object.assign(updated, updateFields);
+      await updated.save();
+    } else {
+      // Create new record with upsert
+      updated = await BlogStatus.findOneAndUpdate(
+        { devId: devIdNum },
+        { $set: updateFields },
+        { upsert: true, new: true }
+      );
     }
 
+    console.log("Updated document:", updated);
     res.json(updated);
   } catch (err) {
     console.error("Update error:", err);
-    res.status(500).json({ error: "Failed to update record" });
+    res.status(500).json({ error: "Failed to update record: " + err.message });
   }
 });
 

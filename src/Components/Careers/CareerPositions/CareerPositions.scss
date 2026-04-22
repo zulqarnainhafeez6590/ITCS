@@ -1,6 +1,7 @@
 .career-positions {
-  padding: 100px 40px;
-  background-color: var(--bg-primary);
+  padding: 120px 40px;
+  background: radial-gradient(circle at bottom left, #1a1f3a, #0a0e27);
+  font-family: 'Inter', sans-serif;
 
   .positions-container {
     max-width: 1200px;
@@ -8,31 +9,35 @@
 
     .section-header {
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 80px;
 
       .section-badge {
         display: inline-block;
-        padding: 6px 16px;
-        background: var(--accent-blue-light);
-        border: 1px solid var(--accent-blue);
-        color: var(--accent-blue);
-        border-radius: 16px;
+        padding: 8px 18px;
+        background: rgba(74, 158, 255, 0.1);
+        border: 1px solid rgba(74, 158, 255, 0.3);
+        color: #4a9eff;
+        border-radius: 20px;
         font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 1.5px;
-        margin-bottom: 16px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        text-transform: uppercase;
       }
 
       h2 {
-        font-size: 42px;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 16px;
+        font-size: 52px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 24px;
       }
 
       p {
         font-size: 18px;
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.6);
         max-width: 600px;
         margin: 0 auto;
         line-height: 1.8;
@@ -44,132 +49,184 @@
       gap: 12px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 40px;
+      margin-bottom: 60px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
 
       .filter-btn {
         padding: 10px 24px;
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        color: var(--text-secondary);
-        border-radius: 8px;
+        background: transparent;
+        border: 1px solid transparent;
+        color: rgba(255, 255, 255, 0.5);
+        border-radius: 10px;
         font-size: 14px;
         font-weight: 600;
         cursor: pointer;
-        transition: all var(--transition-normal);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         &:hover {
-          border-color: var(--accent-blue);
-          color: var(--accent-blue);
+          color: #fff;
+          background: rgba(255, 255, 255, 0.05);
         }
 
         &.active {
-          background: var(--accent-gradient);
-          border-color: transparent;
-          color: white;
-          box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+          background: #fff;
+          color: #0a0e27;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
       }
     }
 
     .positions-grid {
       display: grid;
-      gap: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 32px;
 
       .position-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 16px;
-        padding: 32px;
-        transition: all var(--transition-normal);
-        animation: fadeIn 0.6s ease-out;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        padding: 40px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, rgba(74, 158, 255, 0.1) 0%, transparent 100%);
+          opacity: 0;
+          transition: opacity 0.4s ease;
+        }
 
         &:hover {
-          transform: translateX(8px);
-          box-shadow: var(--shadow-lg);
-          border-color: var(--accent-blue);
+          transform: translateY(-10px);
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(74, 158, 255, 0.4);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+
+          &::before {
+            opacity: 1;
+          }
 
           .apply-btn {
-            background: var(--accent-gradient);
-            color: white;
-            transform: translateX(4px);
+            background: #fff;
+            color: #0a0e27;
+            border-color: #fff;
+          }
+
+          .view-details-btn {
+            background: linear-gradient(135deg, #357abd 0%, #4a9eff 100%);
           }
         }
 
         .position-header {
-          margin-bottom: 20px;
+          margin-bottom: 24px;
+          position: relative;
+          z-index: 1;
 
           .position-meta {
             display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 16px;
 
             span {
-              padding: 4px 12px;
-              border-radius: 6px;
-              font-size: 12px;
-              font-weight: 600;
+              padding: 6px 14px;
+              border-radius: 10px;
+              font-size: 11px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
             }
 
             .department-tag {
-              background: var(--accent-blue-light);
-              color: var(--accent-blue);
+              background: rgba(74, 158, 255, 0.15);
+              color: #4a9eff;
             }
 
             .type-tag {
               background: rgba(255, 255, 255, 0.05);
-              color: var(--text-secondary);
-              border: 1px solid var(--border-color);
+              color: rgba(255, 255, 255, 0.6);
+              border: 1px solid rgba(255, 255, 255, 0.1);
             }
           }
 
           h3 {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-primary);
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.3;
           }
         }
 
         .position-details {
           display: flex;
-          gap: 24px;
-          margin-bottom: 16px;
+          gap: 20px;
+          margin-bottom: 24px;
+          position: relative;
+          z-index: 1;
 
           .detail {
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 14px;
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.5);
 
             .icon {
               font-size: 16px;
+              color: #4a9eff;
             }
           }
         }
 
         .position-description {
           font-size: 15px;
-          line-height: 1.7;
-          color: var(--text-secondary);
-          margin-bottom: 24px;
+          line-height: 1.8;
+          color: rgba(255, 255, 255, 0.5);
+          margin-bottom: 32px;
+          position: relative;
+          z-index: 1;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          min-height: 90px;
         }
 
-        .apply-btn {
-          padding: 12px 28px;
+        .apply-btn, .view-details-btn {
+          width: 100%;
+          padding: 16px;
           background: transparent;
-          border: 2px solid var(--accent-blue);
-          color: var(--accent-blue);
-          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: #fff;
+          border-radius: 14px;
           font-size: 15px;
-          font-weight: 600;
+          font-weight: 700;
           cursor: pointer;
-          transition: all var(--transition-normal);
+          transition: all 0.3s ease;
+          position: relative;
+          z-index: 1;
+          margin-top: auto;
 
           &:hover {
-            background: var(--accent-gradient);
-            border-color: transparent;
-            color: white;
+            transform: scale(1.02);
           }
+        }
+
+        .view-details-btn {
+          background: linear-gradient(135deg, #4a9eff 0%, #357abd 100%);
+          border: none;
         }
       }
     }

@@ -62,30 +62,42 @@ router.post('/microsoft', async (req, res) => {
       const userEmail = microsoftUser.mail || microsoftUser.userPrincipalName || email
       const userName = microsoftUser.displayName || name || microsoftUser.givenName || 'User'
 
-      // Check if user exists in database
-      let user = await User.findOne({ email: userEmail })
+      // Check if user exists in database by email OR by username
+      let user = await User.findOne({ 
+        $or: [
+          { email: userEmail },
+          { username: userEmail.split('@')[0] }
+        ]
+      })
+      
+      const usernameDerived = userEmail.split('@')[0]
 
       if (!user) {
-        // Create new user if doesn't exist
+        // Create new user if doesn't exist at all
         user = new User({
           fullName: userName,
-          username: userEmail.split('@')[0],
+          username: usernameDerived,
           email: userEmail,
           password: '', // No password needed for OAuth users
           role: 'admin',
           isAdmin: true,
         })
         await user.save()
+        console.log(`Created new Microsoft user: ${userEmail}`)
       } else {
-        // Update user info if exists
+        // Update user info - link Microsoft login to existing manual account if needed
         user.fullName = userName
+        user.email = userEmail // Ensure email matches Microsoft one
         await user.save()
+        console.log(`Linked/Updated Microsoft user: ${userEmail}`)
       }
 
       // Generate JWT token
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: '1h',
+        expiresIn: '7d', // Extended for easier development
       })
+
+      console.log(`User ${userEmail} successfully authenticated via Microsoft`)
 
       res.status(200).json({
         message: 'Login successful',
@@ -98,8 +110,17 @@ router.post('/microsoft', async (req, res) => {
         },
       })
     } catch (graphError) {
-      console.error('Microsoft Graph API error:', graphError.response?.data || graphError.message)
-      return res.status(401).json({ message: 'Invalid Microsoft token' })
+      console.error('--- Microsoft Graph API Error ---')
+      if (graphError.response) {
+        console.error('Status:', graphError.response.status)
+        console.error('Data:', JSON.stringify(graphError.response.data, null, 2))
+      } else {
+        console.error('Message:', graphError.message)
+      }
+      return res.status(401).json({ 
+        message: 'Failed to verify Microsoft account. Please ensure your token is valid.',
+        details: graphError.response?.data?.error?.message || graphError.message
+      })
     }
   } catch (error) {
     console.error('Microsoft login error:', error)

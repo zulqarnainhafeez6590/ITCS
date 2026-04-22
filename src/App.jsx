@@ -14,9 +14,11 @@ import Login from './Components/Login/Login'
 
 import Blog from './Components/Blog/Blog'
 import BlogDetail from './Components/Blog/BlogDetail'
+import CustomBlogDetail from './Components/Blog/CustomBlogDetail'
 import AdminPanel from './Components/AdminPanel/AdminPanel'
 import BlogApproval from "./Components/AdminPanel/BlogApproval/BlogApproval";
 import AdminBlogDetail from "./Components/AdminPanel/BlogApproval/AdminBlogDetail";
+import PostBlog from "./Components/AdminPanel/PostBlog/PostBlog";
 import AdminRoute from './Components/AdminPanel/AdminRoute'
 
 //Dropdowns
@@ -28,6 +30,7 @@ import ITServices from './Components/Services-Dropdown/IT-Services/ITServices'
 import Network from './Components/Services-Dropdown/Network-Solutions/Network'
 import Careers from './Components/Careers/Careers'
 import ApplyJob from './Components/Careers/ApplyJob/ApplyJob'
+import JobDetail from './Components/Careers/JobDetail/JobDetail'
 
 function App() {
   const location = useLocation()
@@ -52,12 +55,14 @@ function App() {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/careers" element={<Careers />} />
+        <Route path="/job/:id" element={<JobDetail />} />
         <Route path="/apply" element={<ApplyJob />} />
 
         <Route path="/login" element={<Login />} />
         {/*<Route path="/signup" element={<Signup />} />*/}
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:id" element={<BlogDetail />} />
+        <Route path="/custom-blog/:id" element={<CustomBlogDetail />} />
         <Route
           path="/admin"
           element={
@@ -79,6 +84,22 @@ function App() {
           element={
             <AdminRoute>
               <AdminBlogDetail />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/post-blog"
+          element={
+            <AdminRoute>
+              <PostBlog />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/post-blog/:id"
+          element={
+            <AdminRoute>
+              <PostBlog />
             </AdminRoute>
           }
         />

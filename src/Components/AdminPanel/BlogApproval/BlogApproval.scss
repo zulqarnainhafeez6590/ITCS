@@ -114,6 +114,21 @@
   text-decoration: underline;
 }
 
+.custom-badge {
+  display: inline-block;
+  align-self: flex-start;
+  background: linear-gradient(135deg, #4a9eff 0%, #357abd 100%);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 8px;
+  box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
+}
+
 .blog-card__footer {
   margin-top: 20px;
   padding-top: 20px;

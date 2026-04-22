@@ -14,7 +14,6 @@ export default function BlogApproval() {
   const blogsPerPage = 9;
 
   const organization = "itcs11";
-  const backendUrl = "http://localhost:5000";
 
   // Fetch all Dev.to blogs
   const fetchAllDevBlogs = async () => {
@@ -45,9 +44,10 @@ export default function BlogApproval() {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      const [devBlogs, statusRes] = await Promise.all([
+      const [devBlogs, statusRes, pendingCustomRes] = await Promise.all([
         fetchAllDevBlogs(),
-        axios.get(`${backendUrl}/api/blogs/statuses`)
+        axios.get(`/api/blogs/statuses`),
+        axios.get(`/api/custom-blogs?status=pending`)
       ]);
 
       const statusMap = {};
@@ -66,10 +66,23 @@ export default function BlogApproval() {
       setAuthors(authorMap);
       setDates(dateMap);
 
-      let visibleBlogs = devBlogs.filter(blog => statusMap[blog.id] !== "rejected");
-      visibleBlogs = sortBlogsByDate(visibleBlogs, dateMap);
+      const devToBlogs = devBlogs
+        .filter(blog => statusMap[blog.id] !== "rejected")
+        .map(blog => ({ ...blog, type: 'devto' }));
 
-      setBlogs(visibleBlogs);
+      const customBlogs = (pendingCustomRes.data || []).map(blog => ({
+        ...blog,
+        id: blog._id,
+        type: 'custom',
+        description: blog.excerpt,
+        cover_image: blog.coverImage,
+        readable_publish_date: new Date(blog.createdAt).toLocaleDateString()
+      }));
+
+      let allBlogs = [...devToBlogs, ...customBlogs];
+      allBlogs = sortBlogsByDate(allBlogs, dateMap);
+
+      setBlogs(allBlogs);
     } catch (err) {
       console.error(err);
       alert("Failed to fetch blogs or statuses.");
@@ -79,20 +92,31 @@ export default function BlogApproval() {
   };
 
   // Update blog status
-  const updateStatus = async (devId, status) => {
+  const updateStatus = async (blogId, status, type) => {
     try {
-      await axios.patch(`${backendUrl}/api/blogs/${devId}/status`, { status });
-      setStatuses(prev => ({ ...prev, [devId]: status }));
-      if (status === "rejected") setBlogs(prev => prev.filter(blog => blog.id !== devId));
-    } catch {
-      alert("Failed to update status.");
+      if (type === 'custom') {
+        const updateData = { status: status === 'approved' ? 'published' : 'draft' };
+        if (status === 'approved') {
+          updateData.publishedAt = new Date();
+        }
+        await axios.put(`/api/custom-blogs/${blogId}`, updateData);
+        setBlogs(prev => prev.filter(b => b.id !== blogId));
+        alert(`Custom blog ${status}!`);
+      } else {
+        await axios.patch(`/api/blogs/${blogId}/status`, { status });
+        setStatuses(prev => ({ ...prev, [blogId]: status }));
+        if (status === "rejected") setBlogs(prev => prev.filter(blog => blog.id !== blogId));
+      }
+    } catch (err) {
+      console.error("Error updating status:", err.response?.data || err.message);
+      alert("Failed to update status: " + (err.response?.data?.error || err.message));
     }
   };
 
   // Update author
   const updateAuthor = async (devId, author) => {
     try {
-      await axios.patch(`${backendUrl}/api/blogs/${devId}/status`, { customAuthor: author });
+      await axios.patch(`/api/blogs/${devId}/status`, { customAuthor: author });
       setAuthors(prev => ({ ...prev, [devId]: author }));
     } catch {
       alert("Failed to update author.");
@@ -103,7 +127,7 @@ export default function BlogApproval() {
   const updateDate = async (devId, customDate) => {
     if (!customDate) return alert("Date cannot be empty.");
     try {
-      await axios.patch(`${backendUrl}/api/blogs/${devId}/status`, { customDate });
+      await axios.patch(`/api/blogs/${devId}/status`, { customDate });
       setDates(prev => {
         const newDates = { ...prev, [devId]: customDate };
         setBlogs(prevBlogs => sortBlogsByDate(prevBlogs, newDates));
@@ -153,47 +177,52 @@ export default function BlogApproval() {
               <div className="tags-small">
                 {blog.tag_list?.slice(0, 3).map(tag => <span key={tag}>#{tag}</span>)}
               </div>
+              {blog.type === 'custom' && <span className="custom-badge">ITCS Source</span>}
               <Link
-                to={`/admin/blog/${blog.id}`}
+                to={blog.type === 'custom' ? `/admin/post-blog/${blog.id}` : `/admin/blog/${blog.id}`}
                 state={{ customAuthor: authors[blog.id] || "" }}
                 className="read-more"
               >
-                Read More
+                {blog.type === 'custom' ? 'Edit & Review' : 'Read More'}
               </Link>
             </div>
 
             <div className="blog-card__footer">
-              <div className="author-edit">
-                <input
-                  type="text"
-                  placeholder="Edit author name"
-                  value={authors[blog.id] || ""}
-                  onChange={e => setAuthors(prev => ({ ...prev, [blog.id]: e.target.value }))}
-                />
-                <button onClick={() => updateAuthor(blog.id, authors[blog.id] || "")}>Save Author</button>
-              </div>
+              {blog.type === 'devto' && (
+                <>
+                  <div className="author-edit">
+                    <input
+                      type="text"
+                      placeholder="Edit author name"
+                      value={authors[blog.id] || ""}
+                      onChange={e => setAuthors(prev => ({ ...prev, [blog.id]: e.target.value }))}
+                    />
+                    <button onClick={() => updateAuthor(blog.id, authors[blog.id] || "")}>Save Author</button>
+                  </div>
 
-              <div className="date-edit">
-                <input
-                  type="date"
-                  value={dates[blog.id] || ""}
-                  onChange={e => setDates(prev => ({ ...prev, [blog.id]: e.target.value }))}
-                />
-                <button onClick={() => updateDate(blog.id, dates[blog.id] || "")}>Save Date</button>
-              </div>
+                  <div className="date-edit">
+                    <input
+                      type="date"
+                      value={dates[blog.id] || ""}
+                      onChange={e => setDates(prev => ({ ...prev, [blog.id]: e.target.value }))}
+                    />
+                    <button onClick={() => updateDate(blog.id, dates[blog.id] || "")}>Save Date</button>
+                  </div>
+                </>
+              )}
 
               <div className="approval-buttons">
                 <button
                   className="approve-btn"
                   disabled={statuses[blog.id] === "approved"}
-                  onClick={() => updateStatus(blog.id, "approved")}
+                  onClick={() => updateStatus(blog.id, "approved", blog.type)}
                 >
                   Approve
                 </button>
                 <button
                   className="reject-btn"
                   disabled={statuses[blog.id] === "rejected"}
-                  onClick={() => updateStatus(blog.id, "rejected")}
+                  onClick={() => updateStatus(blog.id, "rejected", blog.type)}
                 >
                   Reject
                 </button>

@@ -1,40 +1,43 @@
 .career-benefits {
-  padding: 100px 40px;
-  background-color: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
+  padding: 120px 40px;
+  background: radial-gradient(circle at top right, #1a1f3a, #0a0e27);
+  font-family: 'Inter', sans-serif;
 
   .benefits-container {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
 
     .section-header {
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 80px;
 
       .section-badge {
         display: inline-block;
-        padding: 6px 16px;
-        background: var(--accent-blue-light);
-        border: 1px solid var(--accent-blue);
-        color: var(--accent-blue);
-        border-radius: 16px;
+        padding: 8px 18px;
+        background: rgba(74, 158, 255, 0.1);
+        border: 1px solid rgba(74, 158, 255, 0.3);
+        color: #4a9eff;
+        border-radius: 20px;
         font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 1.5px;
-        margin-bottom: 16px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        text-transform: uppercase;
       }
 
       h2 {
-        font-size: 42px;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 16px;
+        font-size: 48px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 24px;
       }
 
       p {
         font-size: 18px;
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.6);
         max-width: 600px;
         margin: 0 auto;
         line-height: 1.8;
@@ -44,68 +47,67 @@
     .benefits-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
+      gap: 32px;
 
       .benefit-card {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 16px;
-        padding: 32px 24px;
-        transition: all var(--transition-normal);
-        animation: fadeInUp 0.6s ease-out backwards;
-
-        @for $i from 0 through 7 {
-          &[data-index="#{$i}"] {
-            animation-delay: #{$i * 0.1}s;
-          }
-        }
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        padding: 40px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: left;
 
         &:hover {
-          transform: translateY(-8px);
-          box-shadow: var(--shadow-lg);
-          border-color: var(--accent-blue);
+          transform: translateY(-10px);
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(74, 158, 255, 0.4);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 
           .benefit-icon {
-            transform: scale(1.2) rotate(10deg);
+            transform: scale(1.1);
+            color: #fff;
           }
         }
 
         .benefit-icon {
-          font-size: 48px;
-          margin-bottom: 20px;
-          color: #fff;
-          transition: transform var(--transition-normal);
-          display: inline-block;
+          font-size: 40px;
+          margin-bottom: 24px;
+          color: #4a9eff;
+          transition: all 0.4s ease;
         }
 
         h3 {
-          font-size: 20px;
-          font-weight: 600;
-          color: var(--text-primary);
+          font-size: 22px;
+          font-weight: 700;
+          color: #fff;
           margin-bottom: 12px;
         }
 
         p {
           font-size: 15px;
-          line-height: 1.7;
-          color: var(--text-secondary);
+          line-height: 1.8;
+          color: rgba(255, 255, 255, 0.5);
         }
       }
     }
   }
+}
 
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
+  .career-benefits {
     padding: 60px 20px;
 
     .benefits-container {

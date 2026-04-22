@@ -62,8 +62,8 @@ const PostJob = () => {
   return (
     <div className="post-job">
       <div className="post-job-header">
-        <h1>Post a New Job</h1>
-        <p>Fill in the details below to create a new job posting</p>
+        <h1>Create Opportunity</h1>
+        <p>Post a new career opening to your global team</p>
       </div>
 
       <div className="post-job-card">

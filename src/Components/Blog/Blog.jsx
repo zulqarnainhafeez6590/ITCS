@@ -10,15 +10,15 @@ export default function Blog() {
   const [loading, setLoading] = useState(true);
 
   const organization = "itcs11";
-  const backendUrl = "http://localhost:5000";
 
   useEffect(() => {
     const fetchBlogs = async () => {
       setLoading(true);
       try {
-        const [devRes, approvedRes] = await Promise.all([
+        const [devRes, approvedRes, customBlogsRes] = await Promise.all([
           fetch(`https://dev.to/api/organizations/${organization}/articles?per_page=50&_=${Date.now()}`),
-          axios.get(`${backendUrl}/api/blogs/approved-ids`)
+          axios.get(`/api/blogs/approved-ids`),
+          axios.get(`/api/custom-blogs?status=published`)
         ]);
 
         const devBlogs = await devRes.json();
@@ -37,19 +37,36 @@ export default function Blog() {
           .filter(blog => approvedIds.includes(blog.id))
           .map(blog => ({
             ...blog,
+            isCustom: false,
             displayAuthor: authorMap[blog.id] || blog.user?.username || "Unknown",
             displayDate: dateMap[blog.id] || blog.readable_publish_date
           }));
 
-        approvedBlogs.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
-        setPosts(approvedBlogs);
+        const customBlogs = (customBlogsRes.data || []).map(blog => ({
+          ...blog,
+          isCustom: true,
+          description: blog.excerpt,
+          readable_publish_date: blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "",
+          reading_time_minutes: blog.readingTime || 5,
+          tag_list: blog.tags || []
+        }));
 
-        const allTags = approvedBlogs.flatMap(blog => blog.tag_list || []);
+        const allBlogs = [...approvedBlogs, ...customBlogs].sort((a, b) => {
+          const dateA = a.isCustom ? new Date(a.publishedAt) : new Date(a.published_at || a.created_at);
+          const dateB = b.isCustom ? new Date(b.publishedAt) : new Date(b.published_at || b.created_at);
+          return dateB - dateA;
+        });
+
+        setPosts(allBlogs);
+
+        const allTags = allBlogs.flatMap(blog => blog.tag_list || []);
         const uniqueTags = Array.from(new Set(allTags)).sort();
         setTags(["all", ...uniqueTags]);
 
       } catch (err) {
         console.error("Failed to load blogs:", err);
+        setPosts([]);
+        setTags(["all"]);
       } finally {
         setLoading(false);
       }
@@ -62,7 +79,6 @@ export default function Blog() {
     ? posts
     : posts.filter(post => post.tag_list?.includes(activeTag));
 
-  // Function to format date like "September 23, 2025"
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -89,11 +105,11 @@ export default function Blog() {
       <div className="blog-grid">
         {filteredPosts.length > 0 ? (
           filteredPosts.map(post => (
-            <article key={post.id} className="blog-card">
+            <article key={post.isCustom ? post._id : post.id} className="blog-card">
               <div className="blog-card__content">
-                {(post.cover_image || post.social_image) && (
+                {(post.cover_image || post.social_image || post.coverImage) && (
                   <img
-                    src={post.cover_image || post.social_image}
+                    src={post.cover_image || post.social_image || post.coverImage}
                     alt={post.title}
                     className="blog-cover"
                     loading="lazy"
@@ -103,7 +119,7 @@ export default function Blog() {
                 <h3>{post.title}</h3>
 
                 <p className="meta">
-                  {post.displayAuthor} • {formatDate(post.displayDate)} • {post.reading_time_minutes} min read
+                  {post.displayAuthor || post.author} • {post.displayDate || post.readable_publish_date} • {post.reading_time_minutes} min read
                 </p>
 
                 <p className="description">{post.description}</p>
@@ -114,7 +130,7 @@ export default function Blog() {
                   ))}
                 </div>
 
-                <Link to={`/blog/${post.id}`} className="read-more">
+                <Link to={post.isCustom ? `/custom-blog/${post._id}` : `/blog/${post.id}`} className="read-more">
                   Read more
                 </Link>
               </div>

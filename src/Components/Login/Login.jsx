@@ -10,6 +10,11 @@ const Login = () => {
   const { instance } = useMsal()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  
+  // Manual Login State
+  const [manualEmail, setManualEmail] = useState('')
+  const [manualPassword, setManualPassword] = useState('')
+  const [showManual, setShowManual] = useState(false)
 
   useEffect(() => {
     // Check if user already has a token (already logged in)
@@ -19,18 +24,11 @@ const Login = () => {
       return
     }
 
-    // If no token, ensure MSAL cache is cleared to prevent auto-login
-    // This ensures clean state after logout
     const accounts = instance.getAllAccounts()
     if (accounts.length > 0 && !token) {
-      // Clear MSAL cache if user is on login page without token
       instance.clearCache()
     }
-
-    // Don't auto-login with MSAL accounts - user must click the button
-    // This prevents auto-login after logout
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [instance, navigate])
 
   const handleMicrosoftLogin = async () => {
     setLoading(true)
@@ -48,13 +46,11 @@ const Login = () => {
 
   const handleMicrosoftLoginSuccess = async (account) => {
     try {
-      // Get access token
       const tokenResponse = await instance.acquireTokenSilent({
         ...loginRequest,
         account: account,
       })
 
-      // Send token to backend for verification
       const response = await fetch('http://localhost:5000/api/auth/microsoft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,16 +64,43 @@ const Login = () => {
       const data = await response.json()
       if (!response.ok) throw new Error(data.message || 'Authentication failed.')
 
-      // Store auth info
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
       localStorage.setItem('email', data.user.email)
 
-      // Navigate to private route
       navigate('/admin')
     } catch (err) {
       console.error('Backend authentication error:', err)
       setError(err.message || 'Failed to authenticate with server')
+      setLoading(false)
+    }
+  }
+
+  const handleManualLogin = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: manualEmail,
+          password: manualPassword
+        })
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || 'Login failed')
+
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      localStorage.setItem('email', data.user.email)
+
+      navigate('/admin')
+    } catch (err) {
+      setError(err.message || 'Invalid credentials')
       setLoading(false)
     }
   }
@@ -89,51 +112,23 @@ const Login = () => {
         <div className="login-card">
           <div className="card-header">
             <img src={alignitLogo} alt="ITCS Logo" className="login-logo" />
-            <p className="card-subtitle">Log in to access your dashboard</p>
+            <p className="card-subtitle">Admin Dashboard Access</p>
           </div>
 
-
-
-          <div className="login-form">
+          <div className="login-body">
             {error && (
-              <div className="error-message" style={{ 
-                color: '#ff4444', 
-                marginBottom: '1rem', 
-                textAlign: 'center',
-                padding: '0.5rem',
-                backgroundColor: '#ffe6e6',
-                borderRadius: '4px'
-              }}>
+              <div className="error-alert">
                 {error}
               </div>
             )}
 
-            <button 
-              type="button" 
-              className="submit-btn microsoft-btn" 
-              onClick={handleMicrosoftLogin}
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: loading ? '#ccc' : '#0078d4',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                marginBottom: '1rem'
-              }}
-            >
-              {loading ? (
-                <span className="loading-spinner">Signing in...</span>
-              ) : (
-                <>
+            {!showManual ? (
+              <div className="auth-options">
+                <button 
+                  className="microsoft-login-btn" 
+                  onClick={handleMicrosoftLogin}
+                  disabled={loading}
+                >
                   <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="0.5" y="0.5" width="9" height="9" fill="#F25022"/>
                     <rect x="10.5" y="0.5" width="9" height="9" fill="#7FBA00"/>
@@ -141,19 +136,61 @@ const Login = () => {
                     <rect x="10.5" y="10.5" width="9" height="9" fill="#FFB900"/>
                   </svg>
                   Sign in with Microsoft 365
-                </>
-              )}
-            </button>
+                </button>
 
-            <div className="form-footer">
-              <button
-                type="button"
-                className="back-home-btn"
-                onClick={() => navigate('/')}
-              >
-                Back to Home
-              </button>
-            </div>
+                <div className="divider">
+                  <span>OR</span>
+                </div>
+
+                <button 
+                  className="toggle-manual-btn"
+                  onClick={() => setShowManual(true)}
+                >
+                  Use Email & Password
+                </button>
+              </div>
+            ) : (
+              <form className="manual-login-form" onSubmit={handleManualLogin}>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input 
+                    type="email" 
+                    placeholder="zulqarnain.hafeez@itcs.com"
+                    value={manualEmail}
+                    onChange={(e) => setManualEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Password</label>
+                  <input 
+                    type="password" 
+                    placeholder="••••••••"
+                    value={manualPassword}
+                    onChange={(e) => setManualPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <button type="submit" className="login-submit-btn" disabled={loading}>
+                  {loading ? 'Authenticating...' : 'Sign In'}
+                </button>
+
+                <button 
+                  type="button" 
+                  className="back-btn" 
+                  onClick={() => setShowManual(false)}
+                >
+                  ← Use Microsoft Account
+                </button>
+              </form>
+            )}
+          </div>
+
+          <div className="card-footer">
+            <button className="home-link" onClick={() => navigate('/')}>
+              Back to Home
+            </button>
           </div>
         </div>
       </div>

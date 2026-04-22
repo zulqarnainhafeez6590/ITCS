@@ -11,11 +11,6 @@ const Login = () => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   
-  // Manual Login State
-  const [manualEmail, setManualEmail] = useState('')
-  const [manualPassword, setManualPassword] = useState('')
-  const [showManual, setShowManual] = useState(false)
-
   useEffect(() => {
     // Check if user already has a token (already logged in)
     const token = localStorage.getItem('token')
@@ -76,35 +71,6 @@ const Login = () => {
     }
   }
 
-  const handleManualLogin = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: manualEmail,
-          password: manualPassword
-        })
-      })
-
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message || 'Login failed')
-
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
-      localStorage.setItem('email', data.user.email)
-
-      navigate('/admin')
-    } catch (err) {
-      setError(err.message || 'Invalid credentials')
-      setLoading(false)
-    }
-  }
-
   return (
     <div className="login-page">
       <div className="login-bg-overlay" />
@@ -122,69 +88,21 @@ const Login = () => {
               </div>
             )}
 
-            {!showManual ? (
-              <div className="auth-options">
-                <button 
-                  className="microsoft-login-btn" 
-                  onClick={handleMicrosoftLogin}
-                  disabled={loading}
-                >
-                  <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="0.5" y="0.5" width="9" height="9" fill="#F25022"/>
-                    <rect x="10.5" y="0.5" width="9" height="9" fill="#7FBA00"/>
-                    <rect x="0.5" y="10.5" width="9" height="9" fill="#00A4EF"/>
-                    <rect x="10.5" y="10.5" width="9" height="9" fill="#FFB900"/>
-                  </svg>
-                  Sign in with Microsoft 365
-                </button>
-
-                <div className="divider">
-                  <span>OR</span>
-                </div>
-
-                <button 
-                  className="toggle-manual-btn"
-                  onClick={() => setShowManual(true)}
-                >
-                  Use Email & Password
-                </button>
-              </div>
-            ) : (
-              <form className="manual-login-form" onSubmit={handleManualLogin}>
-                <div className="form-group">
-                  <label>Email Address</label>
-                  <input 
-                    type="email" 
-                    placeholder="zulqarnain.hafeez@itcs.com"
-                    value={manualEmail}
-                    onChange={(e) => setManualEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="••••••••"
-                    value={manualPassword}
-                    onChange={(e) => setManualPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <button type="submit" className="login-submit-btn" disabled={loading}>
-                  {loading ? 'Authenticating...' : 'Sign In'}
-                </button>
-
-                <button 
-                  type="button" 
-                  className="back-btn" 
-                  onClick={() => setShowManual(false)}
-                >
-                  ← Use Microsoft Account
-                </button>
-              </form>
-            )}
+            <div className="auth-options">
+              <button 
+                className="microsoft-login-btn" 
+                onClick={handleMicrosoftLogin}
+                disabled={loading}
+              >
+                <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="0.5" y="0.5" width="9" height="9" fill="#F25022"/>
+                  <rect x="10.5" y="0.5" width="9" height="9" fill="#7FBA00"/>
+                  <rect x="0.5" y="10.5" width="9" height="9" fill="#00A4EF"/>
+                  <rect x="10.5" y="10.5" width="9" height="9" fill="#FFB900"/>
+                </svg>
+                {loading ? 'Authenticating...' : 'Sign in with Microsoft 365'}
+              </button>
+            </div>
           </div>
 
           <div className="card-footer">

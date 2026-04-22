@@ -46,7 +46,7 @@ const Login = () => {
         account: account,
       })
 
-      const response = await fetch('http://localhost:5000/api/auth/microsoft', {
+      const response = await fetch('/api/auth/microsoft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

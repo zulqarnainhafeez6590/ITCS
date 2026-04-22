@@ -257,10 +257,10 @@ const PostBlog = () => {
 
     try {
       if (id) {
-        await axios.put(`http://localhost:5000/api/custom-blogs/${id}`, blogData);
+        await axios.put(`/api/custom-blogs/${id}`, blogData);
         setMessage("Blog updated successfully!");
       } else {
-        const res = await axios.post("http://localhost:5000/api/custom-blogs", blogData);
+        const res = await axios.post("/api/custom-blogs", blogData);
         setMessage("Blog created successfully!");
         navigate(`/admin/post-blog/${res.data._id}`, { replace: true });
       }
@@ -361,7 +361,7 @@ const PostBlog = () => {
                       reader.onload = async () => {
                         try {
                           const base64 = reader.result;
-                          const res = await axios.post('http://localhost:5000/api/custom-blogs/upload', { image: base64 });
+                          const res = await axios.post('/api/custom-blogs/upload', { image: base64 });
                           if (res.data.success) {
                             setBlog({ ...blog, coverImage: res.data.url });
                           }
@@ -753,7 +753,7 @@ function WidgetSettingsPanel({ widget, currentWidget, onUpdate, onClose }) {
     reader.onload = async () => {
       try {
         const base64 = reader.result;
-        const res = await axios.post('http://localhost:5000/api/custom-blogs/upload', { image: base64 });
+        const res = await axios.post('/api/custom-blogs/upload', { image: base64 });
         if (res.data.success) {
           onUpdate(sectionIndex, columnIndex, widgetIndex, 'url', res.data.url);
         }
@@ -781,7 +781,7 @@ function WidgetSettingsPanel({ widget, currentWidget, onUpdate, onClose }) {
     reader.onload = async () => {
       try {
         const base64 = reader.result;
-        const res = await axios.post('http://localhost:5000/api/custom-blogs/upload', { image: base64 });
+        const res = await axios.post('/api/custom-blogs/upload', { image: base64 });
         if (res.data.success) {
           onUpdate(sectionIndex, columnIndex, widgetIndex, 'url', res.data.url);
         }

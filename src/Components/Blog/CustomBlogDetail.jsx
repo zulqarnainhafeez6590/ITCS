@@ -20,9 +20,11 @@ const WidgetRenderer = ({ widget }) => {
     
     case "text":
       return (
-        <div style={{ textAlign: align, marginBottom: 16 }}>
-          <p style={{ color: textColor, lineHeight: 1.7, margin: 0 }}>{settings?.content || ""}</p>
-        </div>
+        <div 
+          className="text-widget-content"
+          style={{ textAlign: align, marginBottom: 16, color: textColor, lineHeight: 1.8 }}
+          dangerouslySetInnerHTML={{ __html: settings?.content || "" }}
+        />
       );
     
     case "image":

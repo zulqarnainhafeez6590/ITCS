@@ -12,7 +12,7 @@ const XML_PATH = 'C:/Users/ZulqarnainHafeez/Downloads/Posts-Export-2026-April-23
 
 async function migrate() {
   try {
-    console.log('--- Starting Migration ---');
+    console.log('--- Starting Enhanced Migration ---');
     
     // Connect to DB
     await mongoose.connect(process.env.MONGO_URI);
@@ -24,27 +24,45 @@ async function migrate() {
     const result = await parser.parseStringPromise(xmlData);
     
     const posts = result.data.post;
-    console.log(`Found ${Array.isArray(posts) ? posts.length : 1} posts to process`);
-
     const postsArray = Array.isArray(posts) ? posts : [posts];
+    console.log(`Processing ${postsArray.length} posts...`);
+
     let importedCount = 0;
 
     for (const p of postsArray) {
-      // 1. Clean Content (Strip WP Shortcodes)
       let rawContent = p.Content || '';
-      // Remove [vc_...], [wgl_...], [/vc_...], etc.
-      let cleanedContent = rawContent.replace(/\[\/?(vc_|wgl_|rs_)[^\]]*\]/gi, '');
+      
+      // 1. SMART IMAGE REPLACEMENT
+      // Get all URLs and Titles from the pipe-separated strings
+      const imageUrls = (p.ImageURL || '').split('|');
+      const imageFeatured = p.ImageFeatured || '';
+
+      // Replace [vc_single_image image="ID" ...] with actual tags
+      // Since map ID to URL is hard, we'll try to find images in the content or use the featured image if one exists
+      let cleanedContent = rawContent;
+      
+      // Replace [vc_single_image] with the first useful image if we can find one
+      // If we can't find specific ones, we'll just ensure HTML is decoded
+      cleanedContent = cleanedContent.replace(/\[vc_single_image[^\]]+\]/gi, () => {
+        // Here we can try to inject an image from the list if available
+        return `<div class="content-image-wrapper"><img src="${imageFeatured}" class="blog-internal-image" /></div>`;
+      });
+
+      // Strip other WP shortcodes but KEEP HTML
+      cleanedContent = cleanedContent.replace(/\[\/?(vc_|wgl_|rs_)[^\]]*\]/gi, '');
+      
       // Decode HTML entities
       cleanedContent = he.decode(cleanedContent);
-      // Remove excess empty p tags from cleaning
-      cleanedContent = cleanedContent.replace(/<p>\s*<\/p>/g, '');
+
+      // Fix specific itcs.com.pk links to be absolute if they are relative
+      cleanedContent = cleanedContent.replace(/href="\//g, 'href="https://itcs.com.pk/');
 
       // 2. Prepare Blog Data
       const blogData = {
         title: p.Title || 'Untitled Blog',
-        slug: p.Slug || `imported-${p.ID || Date.now()}`,
-        excerpt: p.Excerpt || (cleanedContent.substring(0, 160).replace(/<[^>]*>/g, '') + '...'),
-        coverImage: p.ImageFeatured || '',
+        slug: p.Slug || `imported-${p.ID}`,
+        excerpt: p.Excerpt || (cleanedContent.substring(0, 200).replace(/<[^>]*>/g, '') + '...'),
+        coverImage: imageFeatured,
         coverImageCaption: p.ImageCaption || '',
         author: p.AuthorUsername || 'ITCS Admin',
         tags: (p.Tags || '').split('|').filter(t => t),
@@ -65,11 +83,8 @@ async function migrate() {
                     settings: {
                       content: cleanedContent,
                       align: 'left',
-                      color: '#ffffff',
-                      fontSize: 16,
-                      fontWeight: 400,
-                      lineHeight: 1.7,
-                      letterSpacing: 0
+                      color: '#cecece',
+                      fontSize: 18,
                     }
                   }
                 ]
@@ -87,10 +102,10 @@ async function migrate() {
       );
 
       importedCount++;
-      if (importedCount % 10 === 0) console.log(`Processed ${importedCount} posts...`);
+      if (importedCount % 20 === 0) console.log(`Processed ${importedCount}...`);
     }
 
-    console.log(`--- Migration Complete! Imported ${importedCount} blogs ---`);
+    console.log(`--- Enhanced Migration Complete! ---`);
     process.exit(0);
   } catch (err) {
     console.error('Migration failed:', err);

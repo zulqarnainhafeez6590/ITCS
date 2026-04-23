@@ -50,6 +50,7 @@ async function migrate() {
         tags: (p.Tags || '').split('|').filter(t => t),
         status: (p.Status === 'publish') ? 'published' : 'draft',
         createdAt: p.Date ? new Date(p.Date) : new Date(),
+        publishedAt: p.Date ? new Date(p.Date) : new Date(),
         sections: [
           {
             id: `section-${Date.now()}-${p.ID}`,

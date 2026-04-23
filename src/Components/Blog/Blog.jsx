@@ -5,8 +5,6 @@ import "./Blog.scss";
 
 export default function Blog() {
   const [posts, setPosts] = useState([]);
-  const [tags, setTags] = useState([]);
-  const [activeTag, setActiveTag] = useState("all");
   const [loading, setLoading] = useState(true);
 
   const organization = "itcs11";
@@ -45,9 +43,7 @@ export default function Blog() {
     fetchBlogs();
   }, []);
 
-  const filteredPosts = activeTag === "all"
-    ? posts
-    : posts.filter(post => post.tag_list?.includes(activeTag));
+  const filteredPosts = posts;
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -58,19 +54,7 @@ export default function Blog() {
     <div className="blog-public-container">
       <h2 className="blog-public-title">Our Blogs</h2>
 
-      {loading && <p className="loading-text">Loading approved blogs...</p>}
-
-      <div className="tag-pills">
-        {tags.map(tag => (
-          <button
-            key={tag}
-            className={`tag-pill ${activeTag === tag ? "active" : ""}`}
-            onClick={() => setActiveTag(tag)}
-          >
-            #{tag}
-          </button>
-        ))}
-      </div>
+      {loading && <p className="loading-text">Loading blogs...</p>}
 
       <div className="blog-grid">
         {filteredPosts.length > 0 ? (

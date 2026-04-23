@@ -7,8 +7,6 @@ export default function Blog() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const organization = "itcs11";
-
   useEffect(() => {
     const fetchBlogs = async () => {
       setLoading(true);
@@ -26,15 +24,9 @@ export default function Blog() {
         })).sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 
         setPosts(allBlogs);
-
-        const allTags = allBlogs.flatMap(blog => blog.tag_list || []);
-        const uniqueTags = Array.from(new Set(allTags)).sort();
-        setTags(["all", ...uniqueTags]);
-
       } catch (err) {
         console.error("Failed to load blogs:", err);
         setPosts([]);
-        setTags(["all"]);
       } finally {
         setLoading(false);
       }

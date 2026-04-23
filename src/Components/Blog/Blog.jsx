@@ -15,47 +15,17 @@ export default function Blog() {
     const fetchBlogs = async () => {
       setLoading(true);
       try {
-        const [devRes, approvedRes, customBlogsRes] = await Promise.all([
-          fetch(`https://dev.to/api/organizations/${organization}/articles?per_page=50&_=${Date.now()}`),
-          axios.get(`/api/blogs/approved-ids`),
-          axios.get(`/api/custom-blogs?status=published`)
-        ]);
+        const response = await axios.get(`/api/custom-blogs?status=published`);
+        const customBlogsData = response.data || [];
 
-        const devBlogs = await devRes.json();
-        const approvedData = approvedRes.data;
-
-        const approvedIds = approvedData.map(item => item.devId);
-        const authorMap = {};
-        const dateMap = {};
-
-        approvedData.forEach(item => {
-          if (item.customAuthor) authorMap[item.devId] = item.customAuthor;
-          if (item.customDate) dateMap[item.devId] = item.customDate;
-        });
-
-        const approvedBlogs = devBlogs
-          .filter(blog => approvedIds.includes(blog.id))
-          .map(blog => ({
-            ...blog,
-            isCustom: false,
-            displayAuthor: authorMap[blog.id] || blog.user?.username || "Unknown",
-            displayDate: dateMap[blog.id] || blog.readable_publish_date
-          }));
-
-        const customBlogs = (customBlogsRes.data || []).map(blog => ({
+        const allBlogs = customBlogsData.map(blog => ({
           ...blog,
           isCustom: true,
           description: blog.excerpt,
           readable_publish_date: blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "",
           reading_time_minutes: blog.readingTime || 5,
           tag_list: blog.tags || []
-        }));
-
-        const allBlogs = [...approvedBlogs, ...customBlogs].sort((a, b) => {
-          const dateA = a.isCustom ? new Date(a.publishedAt) : new Date(a.published_at || a.created_at);
-          const dateB = b.isCustom ? new Date(b.publishedAt) : new Date(b.published_at || b.created_at);
-          return dateB - dateA;
-        });
+        })).sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 
         setPosts(allBlogs);
 

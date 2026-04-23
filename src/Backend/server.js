@@ -12,7 +12,7 @@ import adminRoutes from './routes/adminRoutes.js'
 import jobsRoutes from './routes/jobs.js'
 import customBlogRoutes from './routes/customBlogRoutes.js'
 
-dotenv.config()
+dotenv.config({ path: path.resolve('src/Backend/.env') })
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
